@@ -1,0 +1,103 @@
+CREATE TABLE enderecos (
+id SERIAL PRIMARY KEY,
+cep VARCHAR(8) NOT NULL,
+logradouro VARCHAR(100) NOT NULL,
+num VARCHAR(10) NOT NULL, 
+bairro VARCHAR(30) NOT NULL,
+cidade VARCHAR(30) NOT NULL,
+uf CHAR(2) NOT NULL,
+complemento VARCHAR(50)
+);
+
+SELECT * FROM enderecos;
+
+
+CREATE TABLE clientes (
+id SERIAL PRIMARY KEY,
+nome VARCHAR(100) NOT NULL,
+cpf CHAR(11) NOT NULL UNIQUE,
+email VARCHAR(50) NOT NULL UNIQUE, 
+telefone VARCHAR(11) NOT NULL,
+endereco_id INT NOT NULL,
+ativo BOOLEAN NOT NULL DEFAULT true,
+criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+FOREIGN KEY (endereco_id) REFERENCES enderecos(id)
+);
+
+CREATE TABLE clientes (
+id SERIAL PRIMARY KEY,
+nome VARCHAR(100) NOT NULL,
+cpf CHAR(11) NOT NULL UNIQUE,
+email VARCHAR(50) NOT NULL UNIQUE, 
+telefone VARCHAR(11) NOT NULL,
+endereco_id INT REFERENCES enderecos(id) ON DELETE RESTRICT NOT NULL,
+-- endereco_id INT REFERENCES enderecos(id) ON DELETE SET NULL,
+ativo BOOLEAN NOT NULL DEFAULT true,
+criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+DROP TABLE clientes;
+
+CREATE TABLE tipos (
+id SERIAL PRIMARY KEY,
+descricao VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE marcas (
+id SERIAL PRIMARY KEY,
+descricao VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE cargos (
+id SERIAL PRIMARY KEY,
+descricao VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE funcionarios (
+id SERIAL PRIMARY KEY,
+nome VARCHAR(100) NOT NULL,
+cpf CHAR(11) NOT NULL UNIQUE,
+email VARCHAR(50) NOT NULL UNIQUE, 
+telefone VARCHAR(11) NOT NULL,
+endereco_id INT REFERENCES enderecos(id) ON DELETE RESTRICT NOT NULL,
+-- endereco_id INT REFERENCES enderecos(id) ON DELETE SET NULL,
+ativo BOOLEAN NOT NULL DEFAULT true,
+criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+cargo_id INT REFERENCES cargos(id) ON DELETE RESTRICT NOT NULL
+);
+
+CREATE TABLE equipamentos (
+id SERIAL PRIMARY KEY,
+cliente_id INT NOT NULL,
+tipo_id INT REFERENCES tipos(id) ON DELETE RESTRICT NOT NULL,
+marca_id INT REFERENCES marcas(id) ON DELETE RESTRICT NOT NULL,
+cor VARCHAR(15),
+tamanho VARCHAR(20),
+ano CHAR(4),
+serie VARCHAR(15) NOT NULL UNIQUE,
+observacao VARCHAR(255),
+criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE equipamentos
+ADD CONSTRAINT fk_cliente_id FOREIGN KEY (cliente_id) REFERENCES clientes(id);
+
+ALTER TABLE equipamentos ADD FOREIGN KEY (cliente_id) REFERENCES clientes(id);
+
+
+SELECT constraint_name FROM information_schema.table_constraints
+WHERE table_name = 'equipamentos'
+  AND constraint_type = 'FOREIGN KEY';
+
+ALTER TABLE equipamentos
+DROP CONSTRAINT fk_cliente_id;
+
+ALTER TABLE marcas ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE marcas DROP COLUMN ativo;
+ALTER TABLE marcas ALTER COLUMN descricao TYPE VARCHAR(100);
+
+SELECT * FROM marcas;
+
+
+
